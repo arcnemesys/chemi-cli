@@ -1,6 +1,7 @@
 use clap::Args;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+
 #[derive(Debug, Clone, Args,)]
 #[command(args_conflicts_with_subcommands = true)]
 pub struct ElementsArgs {
@@ -200,4 +201,23 @@ pub fn exec(args: &ElementsArgs) {
             element_name, element_period
         );
     }
+}
+
+pub fn create_periodic_table() -> serde_json::Value {
+    let file = std::fs::read_to_string("./data/periodic_table.json")
+        .expect("Was not able to open .json file.");
+    let table = serde_json::from_str::<Value>(&file).expect("Unable to read value.");
+    table
+}
+
+pub fn get_members(series: String, p_table: &Map<String, Value>) -> Vec<String> {
+    let mut members = Vec::new();
+    for i in p_table.iter() {
+        let val = i.1["series"].to_string().replace('\"', "");
+        if val == series {
+            members.push(i.1["element_name"].clone().to_string())
+        }
+    }
+
+    members
 }
